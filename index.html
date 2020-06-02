@@ -3,8 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Tasks JS</title>
+
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<form action="" class="box">
+    <label for="latitude">Latitude</label>
+    <input type="text" id="latitude" name="latitude" placeholder="For example, 59.01" pattern="[0-9]{1,2}\.[0-9]{1,6}||[0-9]{1,2}" required>
+    <label for="longitude">Longitude</label>
+    <input type="text" id="longitude" name="longitude" placeholder="For example, 37.72" pattern="[0-9]{1,2}\.[0-9]{1,6}||[0-9]{1,2}" required>
+    <button type="submit">Check weather</button>
+</form>
+
+
+
+</article>
 
 <script src="script.js"></script>
 </body>

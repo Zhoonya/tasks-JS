@@ -1,0 +1,57 @@
+body {
+    font-family: sans-serif;
+    font-size: 17px;
+}
+
+.box {
+    max-width: 300px;
+    padding: 5px 25px 25px 25px;
+    margin: 50px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+input,
+button,
+label {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+input {
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid dimgray;
+}
+
+button {
+    font-size: 17px;
+    padding: 10px 20px;
+    font-weight: bold;
+    color: white;
+    background-color: darkslategray;
+    border: none;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.coords {
+    font-size: 12px;
+    color: dimgray;
+    margin-top: 5px;
+}
+
+.name {
+    margin-bottom: 5px;
+}
+
+.bold {
+    font-weight: bold;
+}
