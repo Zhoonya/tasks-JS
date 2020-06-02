@@ -128,9 +128,9 @@ const request = () => {
 
 const inputElements = document.querySelectorAll('input');
 inputElements.forEach((input) => {
-    input.addEventListener('invalid', () => {
+    input.addEventListener('input', () => {
         if (input.validity.patternMismatch) {
-            input.setCustomValidity(`Please enter the data in the proposed format`);
+            input.setCustomValidity('Please enter the data in the proposed format.');
         } else if (input.validity.valueMissing) {
             input.setCustomValidity('Please enter a coordinate.');
         } else {
