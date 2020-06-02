@@ -38,9 +38,7 @@ const renderWeatherTemplate = (response) => {
     const createMarkup = (data) => {
 
         const getWindDirection = () => {
-            console.log(data.wind.deg);
             const indexOfDirection = Math.round(data.wind.deg/45);
-            console.log(indexOfDirection);
             if (indexOfDirection === 8) {
                 return windDirections[0];
             } else {
@@ -127,16 +125,23 @@ const request = () => {
         });
 };
 
+const validation = (input) => {
+    if (input.validity.patternMismatch) {
+        input.setCustomValidity('Please enter the data in the proposed format.');
+    } else if (input.validity.valueMissing) {
+        input.setCustomValidity('Please enter a coordinate.');
+    } else {
+        input.setCustomValidity('');
+    }
+};
+
 const inputElements = document.querySelectorAll('input');
 inputElements.forEach((input) => {
     input.addEventListener('input', () => {
-        if (input.validity.patternMismatch) {
-            input.setCustomValidity('Please enter the data in the proposed format.');
-        } else if (input.validity.valueMissing) {
-            input.setCustomValidity('Please enter a coordinate.');
-        } else {
-            input.setCustomValidity('');
-        }
+        validation(input);
+    });
+    input.addEventListener('invalid', () => {
+        validation(input);
     });
 });
 
