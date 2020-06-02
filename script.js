@@ -1,5 +1,19 @@
 'use strict';
 
+const KELVIN = 273.15;
+const URL = 'https://api.openweathermap.org/data/2.5/weather?';
+const API_KEY = '&appid=7312b1a42d2665a6c830420857b8c3f9';
+
+const windDirections = [
+    'northern',
+    'northeastern',
+    'eastern',
+    'southeastern',
+    'southern',
+    'southwestern',
+    'western', 'northwestern'
+];
+
 const formElement = document.querySelector('form');
 
 const removeOldInformation = () => {
@@ -14,52 +28,38 @@ const removeOldInformation = () => {
     }
 };
 
-const getWeatherTemplate = (response) => {
+const changeKelvinsToСelsius = (value) => {
+    return Math.round(value - KELVIN);
+};
+
+const renderWeatherTemplate = (response) => {
     removeOldInformation();
 
     const createMarkup = (data) => {
+
         const getWindDirection = () => {
-            const windDegrees = data.wind.deg;
-            switch (true) {
-                case windDegrees <= 20 && windDegrees >= 340:
-                    return 'northern';
-                    break;
-                case windDegrees > 20 && windDegrees < 70:
-                    return 'northeastern';
-                    break;
-                case windDegrees >= 70 && windDegrees <= 110:
-                    return 'eastern';
-                    break;
-                case windDegrees > 110 && windDegrees < 160:
-                    return 'southeastern';
-                    break;
-                case windDegrees >= 160 && windDegrees <= 200:
-                    return 'southern';
-                    break;
-                case windDegrees > 200 && windDegrees < 250:
-                    return 'southwestern';
-                    break;
-                case windDegrees >= 250 && windDegrees <= 290:
-                    return 'western';
-                    break;
-                case windDegrees > 290 && windDegrees < 340:
-                    return 'northwestern';
-                    break;
-                default:
-                    return;
+            console.log(data.wind.deg);
+            const indexOfDirection = Math.round(data.wind.deg/45);
+            console.log(indexOfDirection);
+            if (indexOfDirection === 8) {
+                return windDirections[0];
+            } else {
+                return windDirections[indexOfDirection];
             }
         };
+
         const timeSunrise = new Date(data.sys.sunrise * 1000);
         const timeSunset = new Date(data.sys.sunset * 1000);
+
         return (
             `<article class="box response">
                 <h3 class="name">${data.name}</h3>
                 <p class="coords">${data.coord.lon}, ${data.coord.lat}</p>
                 <p class="bold">${data.weather[0].description[0].slice().toUpperCase() + data.weather[0].description.slice(1)}</p>
-                <p><span class="bold">Average temperature:</span> ${Math.round(data.main.temp - 273.15)}&#176;</p>
-                <p><span class="bold">Feels like:</span> ${Math.round(data.main.feels_like - 273.15)}&#176;</p>
-                <p><span class="bold">Maximum temperature:</span> ${Math.round(data.main.temp_min - 273.15)}&#176;</p>
-                <p><span class="bold">Minimum temperature:</span> ${Math.round(data.main.temp_max - 273.15)}&#176;</p>
+                <p><span class="bold">Average temperature:</span> ${changeKelvinsToСelsius(data.main.temp)}&#176;</p>
+                <p><span class="bold">Feels like:</span> ${changeKelvinsToСelsius(data.main.feels_like)}&#176;</p>
+                <p><span class="bold">Maximum temperature:</span> ${changeKelvinsToСelsius(data.main.temp_min)}&#176;</p>
+                <p><span class="bold">Minimum temperature:</span> ${changeKelvinsToСelsius(data.main.temp_max)}&#176;</p>
                 <p><span class="bold">Pressure:</span> ${data.main.pressure}hPa</p>
                 <p><span class="bold">Humidity:</span> ${data.main.humidity}%</p>
                 <p><span class="bold">Wind speed:</span> ${data.wind.speed}m/s</p>
@@ -76,7 +76,7 @@ const getWeatherTemplate = (response) => {
 
 };
 
-const getErrorTemplate = (text) => {
+const renderErrorTemplate = (text) => {
     removeOldInformation();
 
     const createMarkup = () => {
@@ -103,24 +103,25 @@ const getFormData = () => {
 
 const request = () => {
     const coords = getFormData();
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&appid=7312b1a42d2665a6c830420857b8c3f9`)
+    const latitude = `lat=${coords.lat}`;
+    const longitude = `&lon=${coords.lon}`;
+    fetch(`${URL}${latitude}${longitude}${API_KEY}`)
         .then((response) => {
             if (!response.ok) {
                 throw new Error(`${response.status}`);
-            } else {
-                return response
             }
+            return response;
         })
         .then((response) => response.json())
         .then((response) => {
-            getWeatherTemplate(response);
+            renderWeatherTemplate(response);
             formElement.reset();
         })
         .catch((error) => {
             if (error == 'Error: 400') {
-                getErrorTemplate(`Failed to check the weather by coordinates: ${coords.lat}, ${coords.lon}. Please make sure they are correct.`);
+                renderErrorTemplate(`Failed to check the weather by coordinates: ${coords.lat}, ${coords.lon}. Please make sure they are correct.`);
             } else {
-                getErrorTemplate('Failed to check the weather.');
+                renderErrorTemplate('Failed to check the weather.');
             }
             formElement.reset();
         });
