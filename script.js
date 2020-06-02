@@ -49,6 +49,8 @@ const getWeatherTemplate = (response) => {
                     return;
             }
         };
+        const timeSunrise = new Date(data.sys.sunrise * 1000);
+        const timeSunset = new Date(data.sys.sunset * 1000);
         return (
             `<article class="box response">
                 <h3 class="name">${data.name}</h3>
@@ -62,6 +64,8 @@ const getWeatherTemplate = (response) => {
                 <p><span class="bold">Humidity:</span> ${data.main.humidity}%</p>
                 <p><span class="bold">Wind speed:</span> ${data.wind.speed}m/s</p>
                 <p><span class="bold">Direction of the wind:</span> ${getWindDirection()}</p>
+                <p><span class="bold">Sunrise:</span> ${timeSunrise.getHours()}:${timeSunrise.getMinutes()}:${timeSunrise.getSeconds()}</p>
+                <p><span class="bold">Sunset:</span> ${timeSunset.getHours()}:${timeSunset.getMinutes()}:${timeSunset.getSeconds()}</p>
             </article>`
         );
     };
