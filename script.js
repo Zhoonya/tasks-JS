@@ -1,6 +1,7 @@
 'use strict';
 
 const KELVIN = 273.15;
+const ICON_URL = 'http://openweathermap.org/img/wn/';
 const URL = 'https://api.openweathermap.org/data/2.5/weather?';
 const API_KEY = '&appid=7312b1a42d2665a6c830420857b8c3f9';
 
@@ -58,8 +59,11 @@ const renderWeatherTemplate = (response) => {
             `<article class="box response">
                 <h3 class="name">${data.name}</h3>
                 <p class="coords">${data.coord.lat}, ${data.coord.lon}</p>
+                <p>
+                    <img class="icon" src="${ICON_URL}${data.weather[0].icon}.png" alt="${data.weather[0].description}">
+                    <span class="bold currentTemp">${changeKelvinsToСelsius(data.main.temp)}&#176;</span>
+                </p>
                 <p class="bold">${data.weather[0].description[0].slice().toUpperCase() + data.weather[0].description.slice(1)}</p>
-                <p><span class="bold">Average temperature:</span> ${changeKelvinsToСelsius(data.main.temp)}&#176;</p>
                 <p><span class="bold">Feels like:</span> ${changeKelvinsToСelsius(data.main.feels_like)}&#176;</p>
                 <p><span class="bold">Maximum temperature:</span> ${changeKelvinsToСelsius(data.main.temp_min)}&#176;</p>
                 <p><span class="bold">Minimum temperature:</span> ${changeKelvinsToСelsius(data.main.temp_max)}&#176;</p>
@@ -89,10 +93,10 @@ const renderErrorTemplate = (text) => {
     removeOldInformation();
     const createMarkup = () => {
         return (
-            `<article class="box error">
+            `<section class="box error">
                 <h3 class="name">Error</h3>
                 <p>${text}</p>
-            </article>`
+            </section>`
         );
     };
 
@@ -106,9 +110,9 @@ const renderLoadingTemplate = () => {
 
     const createMarkup = () => {
         return (
-            `<article class="box loading">
+            `<section class="box loading">
                 <h3 class="name">Loading...</h3>
-            </article>`
+            </section>`
         );
     };
 
