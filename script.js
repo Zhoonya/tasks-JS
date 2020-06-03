@@ -26,6 +26,11 @@ const removeOldInformation = () => {
     if (oldError) {
         oldError.remove();
     }
+
+    const loading = document.querySelector('.loading');
+    if (loading) {
+        loading.remove();
+    }
 };
 
 const changeKelvinsToСelsius = (value) => {
@@ -52,7 +57,7 @@ const renderWeatherTemplate = (response) => {
         return (
             `<article class="box response">
                 <h3 class="name">${data.name}</h3>
-                <p class="coords">${data.coord.lon}, ${data.coord.lat}</p>
+                <p class="coords">${data.coord.lat}, ${data.coord.lon}</p>
                 <p class="bold">${data.weather[0].description[0].slice().toUpperCase() + data.weather[0].description.slice(1)}</p>
                 <p><span class="bold">Average temperature:</span> ${changeKelvinsToСelsius(data.main.temp)}&#176;</p>
                 <p><span class="bold">Feels like:</span> ${changeKelvinsToСelsius(data.main.feels_like)}&#176;</p>
@@ -74,9 +79,14 @@ const renderWeatherTemplate = (response) => {
 
 };
 
+const renderCurrentPositionButton = () => {
+    const newElement = document.createElement('div');
+    newElement.innerHTML = '<button type="button" class="current-position">Check weather at current location</button>';
+    formElement.append(newElement.firstChild);
+};
+
 const renderErrorTemplate = (text) => {
     removeOldInformation();
-
     const createMarkup = () => {
         return (
             `<article class="box error">
@@ -91,18 +101,36 @@ const renderErrorTemplate = (text) => {
     formElement.after(newElement.firstChild);
 };
 
+const renderLoadingTemplate = () => {
+    removeOldInformation();
+
+    const createMarkup = () => {
+        return (
+            `<article class="box loading">
+                <h3 class="name">Loading...</h3>
+            </article>`
+        );
+    };
+
+    const newElement = document.createElement('div');
+    newElement.innerHTML = createMarkup();
+    formElement.after(newElement.firstChild);
+};
+
 const getFormData = () => {
     const formData = new FormData(document.querySelector('form'));
     return {
-        "lon": formData.get('longitude'),
-        "lat": formData.get('latitude'),
+        coords: {
+            "longitude": formData.get('longitude'),
+            "latitude": formData.get('latitude'),
+        }
     }
 };
 
-const request = () => {
-    const coords = getFormData();
-    const latitude = `lat=${coords.lat}`;
-    const longitude = `&lon=${coords.lon}`;
+const request = (position) => {
+    const latitude = `lat=${position.coords.latitude}`;
+    const longitude = `&lon=${position.coords.longitude}`;
+    renderLoadingTemplate();
     fetch(`${URL}${latitude}${longitude}${API_KEY}`)
         .then((response) => {
             if (!response.ok) {
@@ -147,5 +175,17 @@ inputElements.forEach((input) => {
 
 formElement.addEventListener('submit', (evt) => {
     evt.preventDefault();
-    request();
+    request(getFormData());
 });
+
+const errorHandler = () => {
+    renderErrorTemplate('Failed to check your coordinates. Please enter them yourself.');
+};
+
+if (navigator.geolocation) {
+    renderCurrentPositionButton();
+    const currentPositionButton = formElement.querySelector('.current-position');
+    currentPositionButton.addEventListener('click', () => {
+        navigator.geolocation.getCurrentPosition(request, errorHandler);
+    });
+}
