@@ -138,6 +138,7 @@ const request = (position) => {
     fetch(`${URL}${latitude}${longitude}${API_KEY}`)
         .then((response) => {
             if (!response.ok) {
+                console.log(response.status);
                 throw new Error(`${response.status}`);
             }
             return response;
@@ -148,8 +149,9 @@ const request = (position) => {
             formElement.reset();
         })
         .catch((error) => {
+            console.log(error);
             if (error == 'Error: 400') {
-                renderErrorTemplate(`Failed to check the weather by coordinates: ${coords.lat}, ${coords.lon}. Please make sure they are correct.`);
+                renderErrorTemplate(`Failed to check the weather by coordinates: ${position.coords.latitude}, ${position.coords.longitude}. Please make sure they are correct.`);
             } else {
                 renderErrorTemplate('Failed to check the weather.');
             }
