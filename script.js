@@ -16,6 +16,7 @@ const windDirections = [
 ];
 
 const formElement = document.querySelector('form');
+const container = document.querySelector('.container');
 
 const removeOldInformation = () => {
     const oldResponse = document.querySelector('.response');
@@ -31,6 +32,13 @@ const removeOldInformation = () => {
     const loading = document.querySelector('.loading');
     if (loading) {
         loading.remove();
+    }
+};
+
+const removePastRequestsList = () => {
+    const oldInformation = document.querySelector('.past-requests');
+    if (oldInformation) {
+        oldInformation.remove();
     }
 };
 
@@ -79,7 +87,7 @@ const renderWeatherTemplate = (response) => {
 
     const newElement = document.createElement('div');
     newElement.innerHTML = createMarkup(response);
-    formElement.after(newElement.firstChild);
+    container.append(newElement.firstChild);
 
 };
 
@@ -102,7 +110,48 @@ const renderErrorTemplate = (text) => {
 
     const newElement = document.createElement('div');
     newElement.innerHTML = createMarkup();
+    container.append(newElement.firstChild);
+};
+
+const renderPastRequestsTemplate = (pastRequests) => {
+    removePastRequestsList();
+    const createListOfRequests = () => {
+        return pastRequests.map((item) => {
+            const latitude = Number(item.latitude).toFixed(3);
+            const longitude = Number(item.longitude).toFixed(3);
+            return (
+                `<button type="button" class="past-request">
+                    <span class="latitude">${latitude}</span>, 
+                    <span class="longitude">${longitude}</span>
+                </button>`
+            );
+        }).join(`\n`)
+    };
+    const createMarkup = () => {
+        return (
+            `<section class="box past-requests">
+                <h3 class="name">Past requests</h3>
+                ${createListOfRequests()}
+            </section>`
+        );
+    };
+
+    const newElement = document.createElement('div');
+    newElement.innerHTML = createMarkup();
     formElement.after(newElement.firstChild);
+
+    const listOfRequests = document.querySelectorAll('.past-request');
+    listOfRequests.forEach((item) => {
+        const position = {
+            coords: {
+                latitude: Number(item.querySelector('.latitude').textContent),
+                longitude: Number(item.querySelector('.longitude').textContent)
+            }
+        };
+        item.addEventListener('click', () => {
+            request(position)
+        });
+    })
 };
 
 const renderLoadingTemplate = () => {
@@ -118,27 +167,30 @@ const renderLoadingTemplate = () => {
 
     const newElement = document.createElement('div');
     newElement.innerHTML = createMarkup();
-    formElement.after(newElement.firstChild);
+    container.append(newElement.firstChild);
 };
 
 const getFormData = () => {
     const formData = new FormData(document.querySelector('form'));
     return {
         coords: {
-            "longitude": formData.get('longitude'),
-            "latitude": formData.get('latitude'),
+            "longitude": Number(formData.get('longitude')),
+            "latitude": Number(formData.get('latitude')),
         }
     }
 };
 
 const request = (position) => {
+    const coords = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+    };
     const latitude = `lat=${position.coords.latitude}`;
     const longitude = `&lon=${position.coords.longitude}`;
     renderLoadingTemplate();
     fetch(`${URL}${latitude}${longitude}${API_KEY}`)
         .then((response) => {
             if (!response.ok) {
-                console.log(response.status);
                 throw new Error(`${response.status}`);
             }
             return response;
@@ -147,9 +199,11 @@ const request = (position) => {
         .then((response) => {
             renderWeatherTemplate(response);
             formElement.reset();
+            setItemToStorage(coords);
+            const pastRequests = getItemsFromStorage();
+            renderPastRequestsTemplate(pastRequests);
         })
         .catch((error) => {
-            console.log(error);
             if (error == 'Error: 400') {
                 renderErrorTemplate(`Failed to check the weather by coordinates: ${position.coords.latitude}, ${position.coords.longitude}. Please make sure they are correct.`);
             } else {
@@ -195,3 +249,34 @@ if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(request, errorHandler);
     });
 }
+
+const storage = window.localStorage;
+const nameStorage = 'lastRequests';
+
+const getItemsFromStorage = () => {
+    return JSON.parse(storage.getItem(nameStorage)) || []
+};
+
+const setItemToStorage = (newItem) => {
+    const oldData = getItemsFromStorage();
+    const getNewData = () => {
+        if (oldData.length >= 5) {
+            oldData.unshift(newItem);
+            return oldData.slice(0, 5)
+        } else {
+            oldData.unshift(newItem);
+            return oldData;
+        }
+    };
+    const newData = getNewData();
+    storage.setItem(nameStorage, JSON.stringify(newData));
+};
+
+const pastRequests = getItemsFromStorage();
+if (pastRequests.length > 0) {
+    renderPastRequestsTemplate(pastRequests);
+}
+
+
+
+

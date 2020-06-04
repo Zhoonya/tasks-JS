@@ -4,9 +4,9 @@ body {
 }
 
 .box {
-    max-width: 300px;
+    width: 300px;
     padding: 5px 25px 25px 25px;
-    margin: 50px auto;
+    margin: 50px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
@@ -42,15 +42,23 @@ button {
     padding: 10px 20px;
     font-weight: bold;
     color: white;
-    background-color: darkslategray;
+    background-color: #008081;
     border: none;
     border-radius: 5px;
     margin-top: 20px;
 }
 
+
+button.past-request {
+    color: black;
+    background-color: lightgrey;
+}
+
 button:hover,
 button:active {
     cursor: pointer;
+    color: white;
+    background-color: darkslategray;
 }
 
 .coords {
@@ -77,3 +85,10 @@ button:active {
     line-height: 50px;
     font-size: 20px;
 }
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
